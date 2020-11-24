@@ -5,17 +5,29 @@ from random import randrange
 class NumberGuesser:
     """Number Guessing Class Framework"""
     def __init__(self):
-        self.guessed_list = []
+        global buttons, secretNumber, lblLogs
+        secretNumber = randrange(10)
+        print(secretNumber)
 
-    def add_guess(self, guess):
-        self.guessed_list.append(guess)
+        # remove all logs on init
+        for lblLog in lblLogs:
+            lblLog.grid_forget()
+        lblLogs = []
 
-
-MAX = 10
+    def add_guess(self, g):
+        global buttons
+        # check if guess matches secret number
+        if g == secretNumber:
+            lbl = tk.Label(window, text="Your guess was right. You won! :) ", fg="green")
+            lbl.grid(row=4, column=0, columnspan=5)
+            lblLogs.append(lbl)
+            for b in buttons:
+                b["state"] = tk.DISABLED
+        buttons[g]["state"] = tk.DISABLED
 
 
 # _______________________________________________________________________________________________________________
-
+game = NumberGuesser
 window = tk.Tk()
 window.title("Guessing Game")
 
@@ -27,7 +39,7 @@ lblLine2 = tk.Label(window, text="**********************************************
 # create the buttons
 buttons = []
 for index in range(0, 10):
-    button = tk.Button(window, text=index, command=lambda index=index: process(index), state=tk.DISABLED)
+    button = tk.Button(window, text=index, command=lambda g=index: game.add_guess(g), state=tk.DISABLED)
     buttons.append(button)
 
 
@@ -46,7 +58,7 @@ lblLine2.grid(row=7, column=0, columnspan=5)
 
 for row in range(0, 2):
     for col in range(0, 5):
-        i = row * 5 + col  # convert 2d index to 1d. 5= total number of columns
+        i = (row * 5) + col  # convert 2d index to 1d. 5= total number of columns
         buttons[i].grid(row=row+10, column=col)
 
 btnStartGameList[0].grid(row=13, column=0, columnspan=5)
@@ -57,34 +69,6 @@ guess = 0
 secretNumber = randrange(10)
 print(secretNumber)
 lblLogs = []
-guess_row = 4
-
-# reset all variables
-def init():
-    global buttons, guess, secretNumber, lblLogs, guess_row
-    guess = 0
-    secretNumber = randrange(10)
-    print(secretNumber)
-    guess_row = 4
-
-    # remove all logs on init
-    for lblLog in lblLogs:
-        lblLog.grid_forget()
-    lblLogs = []
-
-
-def process(g):
-    global buttons, guess_row
-    # check if guess matches secret number
-    if g == secretNumber:
-        lbl = tk.Label(window, text="Your guess was right. You won! :) ", fg="green")
-        lbl.grid(row=guess_row, column=0, columnspan=5)
-        lblLogs.append(lbl)
-        guess_row += 1
-        for b in buttons:
-            b["state"] = tk.DISABLED
-    buttons[i]["state"] = tk.DISABLED
-
 
 status = "none"
 
@@ -99,7 +83,7 @@ def start_game(i):
         btnStartGameList[i]["text"] = "Restart Game"
     else:
         status = "restarted"
-        init()
+        game.__init__()
     print("Game started")
 
 
